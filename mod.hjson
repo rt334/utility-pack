@@ -14,7 +14,7 @@ main: "utilitypack.UtilityPackMod"
 description: "实用功能合集：方块搜索（在方块选择菜单添加搜索栏，跨分类搜索所有合法方块，支持拼音）与多人暂停（允许其他玩家请求暂停/解除暂停，支持管理员与自定义白名单模式）。"
 
 #the mod version
-version: 1.0
+version: a0.1.0.0
 
 #the minimum game version required to run this mod
 minGameVersion: 155.4
