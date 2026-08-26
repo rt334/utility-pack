@@ -8,6 +8,7 @@ import arc.graphics.g2d.TextureRegion;
 import arc.scene.style.Drawable;
 import arc.scene.style.TextureRegionDrawable;
 import arc.scene.ui.TextField;
+import arc.util.Log;
 import arc.util.Time;
 import mindustry.core.GameState;
 import mindustry.game.EventType;
@@ -59,8 +60,32 @@ public class UtilityPackMod extends Mod {
         });
     }
 
+    /** 检测是否已加载 Silicon 模组（其方块搜索/多人暂停与本模组功能冲突，重复注册会导致异常） */
+    private static boolean hasSilicon() {
+        for (Mods.LoadedMod mod : mods.list()) {
+            if ("silicon".equals(mod.meta.name)) return true;
+        }
+        return false;
+    }
+
+    /** 检测到 Silicon 时弹出提示，建议禁用 */
+    private static void showConflictDialog() {
+        BaseDialog dialog = new BaseDialog(Core.bundle.get("conflict.silicon.title"));
+        dialog.cont.add(Core.bundle.get("conflict.silicon.body")).width(420f).pad(12f);
+        dialog.buttons.button(Core.bundle.get("conflict.silicon.ok"), Styles.defaultt, dialog::hide).size(140f, 44f);
+        dialog.show();
+    }
+
     @Override
     public void init() {
+        // —— 冲突检测：若已启用 Silicon 模组，提示禁用（方块搜索/多人暂停重复注册会冲突）——
+        Events.on(EventType.ClientLoadEvent.class, e -> {
+            if (hasSilicon()) {
+                Log.info("Detected Silicon mod enabled - showing conflict warning.");
+                showConflictDialog();
+            }
+        });
+
         // —— 方块搜索 ——
         utilitypack.ui.BlockSearch.init();
 
