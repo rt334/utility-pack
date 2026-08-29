@@ -60,10 +60,10 @@ public class UtilityPackMod extends Mod {
         });
     }
 
-    /** 检测是否已加载 Silicon 模组（其方块搜索/多人暂停与本模组功能冲突，重复注册会导致异常） */
+    /** 检测是否已启用 Silicon 模组（仅检测已启用状态；游戏内禁用（setEnabled=false）不算启用，文件仍在 mods 目录） */
     private static boolean hasSilicon() {
         for (Mods.LoadedMod mod : mods.list()) {
-            if ("silicon".equals(mod.meta.name)) return true;
+            if ("silicon".equals(mod.meta.name) && mod.enabled()) return true;
         }
         return false;
     }
