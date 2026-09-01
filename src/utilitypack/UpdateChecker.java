@@ -176,31 +176,29 @@ public class UpdateChecker {
         return out;
     }
 
-    /** CDN 加速前缀（GitHub 下载加速，直连失败时按序尝试；格式为 <前缀> + 原始 GitHub URL） */
+    /** CDN 加速前缀（验证可用；下载按 CDN 优先、直连兜底：gh-proxy.com → ghfast.top → 直连） */
     public static final String[] CDN_PREFIXES = {
-        "https://ghproxy.net/",
         "https://gh-proxy.com/",
         "https://ghfast.top/",
-        "https://github.moeyy.xyz/",
     };
 
-    /** 下载新 jar 并安装到 mods 目录（替换旧 UtilityPack jar）；直连失败自动依次尝试 CDN 加速源 */
+    /** 下载新 jar 并安装到 mods 目录（替换旧 UtilityPack jar）；CDN 优先，直连兜底 */
     public static void downloadAndInstall(Runnable onDone, Runnable onError) {
         if (downloading || downloadUrl.isEmpty()) return;
         downloading = true;
         downloadFrom(0, onDone, onError);
     }
 
-    /** 依次尝试下载源：index=0 为直连，1..CDN_PREFIXES.length 依次使用 CDN 前缀 */
+    /** 依次尝试下载源：0..CDN_PREFIXES.length-1 为 CDN，最后一项为直连 */
     static void downloadFrom(int index, Runnable onDone, Runnable onError) {
         if (index > CDN_PREFIXES.length) {
-            // 所有源（直连 + 全部 CDN）均失败
+            // 全部 CDN + 直连均失败
             downloading = false;
             downloadFailed = true;
             onError.run();
             return;
         }
-        String url = index == 0 ? downloadUrl : CDN_PREFIXES[index - 1] + downloadUrl;
+        String url = index < CDN_PREFIXES.length ? CDN_PREFIXES[index] + downloadUrl : downloadUrl;
         Http.get(url, res -> {
             byte[] data = res.getResult();
             boolean ok = false;
