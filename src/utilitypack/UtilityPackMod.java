@@ -89,6 +89,14 @@ public class UtilityPackMod extends Mod {
         // —— 方块搜索 ——
         utilitypack.ui.BlockSearch.init();
 
+        // —— 主界面自动检查 GitHub 更新（可在设置中关闭；有更新才显示横幅）——
+        Events.on(EventType.ClientLoadEvent.class, e -> {
+            if (Core.settings.getBool("updatecheck.autoCheck", true)) {
+                UpdateChecker.check();
+            }
+            UpdateChecker.setupBanner();
+        });
+
         // —— 设置分类：方块搜索 + 多人暂停 ——
         Events.on(EventType.ClientLoadEvent.class, e -> {
             if (ui == null) return;
@@ -111,6 +119,12 @@ public class UtilityPackMod extends Mod {
                 st.checkPref("pauseRequest", true);
                 st.pref(new CustomSetting(t -> t.button(Core.bundle.get("setting.pauseWhitelist.name"), Styles.defaultt,
                         UtilityPackMod::showWhitelistDialog).width(200f).padTop(6f)));
+                // 灰色细线：多人暂停设置与更新设置分隔（注册为设置项，rebuild 时保留）
+                st.pref(new CustomSetting(t -> t.image(Tex.whiteui).growX().height(2f).color(Pal.gray).padTop(8f).padBottom(8f)));
+                // —— 更新设置 ——
+                st.checkPref("updatecheck.autoCheck", true);
+                st.pref(new CustomSetting(t -> t.button(Core.bundle.get("setting.checkUpdate.name"), Styles.defaultt,
+                        () -> UpdateChecker.check(true)).width(200f).padTop(6f)));
                 // 灰色细线：与「恢复默认设置」分隔（注册为设置项，rebuild 时保留）
                 st.pref(new CustomSetting(t -> t.image(Tex.whiteui).growX().height(2f).color(Pal.gray).padTop(8f).padBottom(8f)));
             });
